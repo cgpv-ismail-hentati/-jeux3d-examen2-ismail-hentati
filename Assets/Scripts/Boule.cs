@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -32,6 +33,18 @@ public class Boule : MonoBehaviour
     [SerializeField, Tooltip("Multiplicateur de force appliqué lors de l'accélération.")]
     float multiplicateurForceAcceleration = 15.0f;
 
+    [SerializeField]
+    private int prixPiece = 5;
+
+    // un evenment : qunad le nombre de pieces change, on envoie le nouveau nombre.
+    public event System.Action<int> nbPiecesModifies;
+
+    /// <summary>
+    /// le nombre de pieces ramasses.
+    /// </summary>
+    public int Pieces {  get; private set; }
+
+
     /// <summary>
     /// Obtient la vélocité actuelle de la boule.
     /// </summary>
@@ -59,6 +72,7 @@ public class Boule : MonoBehaviour
         controles.actions.FindAction("Diriger").performed -= CommencerDirection;
         controles.actions.FindAction("Diriger").canceled -= ArreterDirection;
         controles.actions.FindAction("Accelerer").performed -= UtiliserChargeAcceleration;
+        controles.actions.FindAction("AcheterPause").performed -= AcheterPiece;
     }
 
     /// <summary>
@@ -73,6 +87,7 @@ public class Boule : MonoBehaviour
         controles.actions.FindAction("Diriger").performed += CommencerDirection;
         controles.actions.FindAction("Diriger").canceled += ArreterDirection;
         controles.actions.FindAction("Accelerer").performed += UtiliserChargeAcceleration;
+        controles.actions.FindAction("AcheterPause").performed += AcheterPiece;
         controles.actions.FindAction("Commencer").performed -= CommencerJeu;
 
         rigidbody.useGravity = true;
@@ -135,4 +150,24 @@ public class Boule : MonoBehaviour
         }
         enAcceleration = false;
     }
+
+    /// <summary>
+    /// on ajoute une piece et on appel un event pour changer le nombre de pieces.
+    /// </summary>
+    public void AjouterPiece()
+    {
+        Pieces++;
+        nbPiecesModifies?.Invoke(Pieces);
+    }
+
+    private void AcheterPiece(InputAction.CallbackContext context)
+    {
+        if(Pieces >= prixPiece && ControleurJeu.Instance.PlateformeEnPause == false)
+        {
+            Pieces -= prixPiece;
+            ControleurJeu.Instance.DemarrerPause();
+        }
+    }
+
+
 }

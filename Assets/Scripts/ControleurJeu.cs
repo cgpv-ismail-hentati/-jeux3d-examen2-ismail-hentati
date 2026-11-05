@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +15,12 @@ public class ControleurJeu : MonoBehaviour
     [field:SerializeField, Tooltip("Référence aux contrôles du joueur.")]
     public PlayerInput Controles { get; private set; }
 
+    public event System.Action<bool> PausePlateformesChangee;
+
+    public bool PlateformeEnPause {  get; private set; }
+
+    private float dureePause = 5f;
+
     private void Awake()
     {
         if(Instance == null)
@@ -24,5 +31,34 @@ public class ControleurJeu : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    /// <summary>
+    /// met les plateformes en pause pendant une duree
+    /// </summary>
+    public void DemarrerPause()
+    {
+        StartCoroutine(PauseTemporaire());
+    }
+
+    /// <summary>
+    /// Arrtete les plateformes et attend la duree, puis les remet en mouve
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator PauseTemporaire()
+    {
+        changerEtatPause(true);
+        yield return new WaitForSeconds(dureePause);
+        changerEtatPause(false);
+    }
+
+    /// <summary>
+    /// change l'état de pause et previent toutes les plateformes
+    /// </summary>
+    /// <param name="enPause"></param>
+    private void changerEtatPause(bool enPause)
+    {
+        PlateformeEnPause = enPause;
+        PausePlateformesChangee?.Invoke(enPause);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -23,6 +24,9 @@ public class InformationInterface : MonoBehaviour
     [SerializeField, Tooltip("Référence à la boule.")]
     private Boule boule;
 
+    [SerializeField, Tooltip("Référence au texte affichant le nombre de pieces.")]
+    TextMeshProUGUI textePiece;
+
     // / Temps écoulé depuis le début du jeu
     private float tempsEcoule;
 
@@ -30,6 +34,17 @@ public class InformationInterface : MonoBehaviour
     {
         tempsEcoule = 0f;
         ControleurJeu.Instance.Controles.actions.FindAction("Commencer").performed += CommencerJeu;
+        boule.nbPiecesModifies += AfficherPieces;
+        AfficherPieces(boule.Pieces);
+    }
+
+    /// <summary>
+    /// methode pour afficher le nombre pieces à l'écran
+    /// </summary>
+    /// <param name="nombre">nombre de piece</param>
+    private void AfficherPieces(int nombre)
+    {
+        textePiece.text = nombre.ToString();
     }
 
     private void OnDestroy()
